@@ -132,6 +132,4 @@ All protected routes require an `Authorization` header with the format: `Bearer 
 | `POST` | `/api/borrow` | Admin / Member | Borrow a book (requires `book_id` in JSON)
 
  |
-| `POST` | `/api/return/:id` | Admin / Member | Return a borrowed book by Transaction ID
-
- |
+| `POST` | `/api/return/:id` | Admin / Member | Return a borrowed book by Transaction ID |
