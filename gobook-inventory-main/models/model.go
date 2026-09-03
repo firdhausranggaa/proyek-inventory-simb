@@ -1,0 +1,12 @@
+package models
+
+import "time"
+
+type Books struct {
+	ID          int        `json:"id" form:"id" gorm:"primaryKey"`
+	Title       string     `json:"title" form:"title" binding:"required"`
+	Author      string     `json:"author" form:"author" binding:"required"`
+	Description string     `json:"description" form:"description" binding:"required"`
+	Stock       int        `json:"stock" form:"stock" binding:"required"`
+	DeletedAt   *time.Time `json:"deleted_at" gorm:"index"` // Trigger Soft Delete GORM
+}
