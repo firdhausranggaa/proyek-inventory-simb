@@ -8,5 +8,7 @@ type Books struct {
 	Author      string     `json:"author" form:"author" binding:"required"`
 	Description string     `json:"description" form:"description" binding:"required"`
 	Stock       int        `json:"stock" form:"stock" binding:"required"`
-	DeletedAt   *time.Time `json:"deleted_at" gorm:"index"` // Trigger Soft Delete GORM
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	DeletedAt   *time.Time `json:"deleted_at" gorm:"index"`
 }

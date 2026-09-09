@@ -1,7 +1,16 @@
 # Kredensial & Lingkungan
 .env
+*.local
 
-# Hasil kompilasi/build program Go
+# Frontend (Node.js & Vue)
+node_modules/
+dist/
+dist-ssr/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Backend (Go)
 *.exe
 *.exe~
 *.dll
@@ -12,7 +21,7 @@
 book-inventory
 main
 
-# Konfigurasi Editor/IDE lokal (seperti pengaturan VS Code Anda)
+# Editor & OS
 .vscode/
 .idea/
 *.suo
@@ -20,7 +29,5 @@ main
 *.njsproj
 *.sln
 *.sw?
-
-# File sampah sistem operasi
 .DS_Store
 Thumbs.db

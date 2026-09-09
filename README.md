@@ -1,45 +1,43 @@
-# Fullstack Book Inventory System (SIMB)
+# Enterprise Fullstack Book Inventory System (SIMB)
 
-A robust, decoupled full-stack application for library and inventory management. This project demonstrates end-to-end architecture, integrating a secure RESTful API built with Go (Golang) and a reactive, modern frontend powered by Vue 3 & Vite.
+A robust, decoupled full-stack application for library and inventory management. This project demonstrates production-ready backend architecture paired with a reactive, modern frontend, showcasing industry-standard practices in relational database management, concurrency control, and secure authorization mechanisms.
 
-## 🚀 Key Features
+## 🚀 Key Enterprise Features
 
-*   **Decoupled Architecture:** Clean separation of concerns between the headless Go backend and the Vite-powered Vue frontend.
-*   **Secure Authentication:** User registration and login utilizing **Bcrypt** for password hashing and **JWT** (JSON Web Tokens) for stateless authentication[cite: 27].
-*   **Role-Based Access Control (RBAC):** Distinct permission levels separating `Admin` (full CRUD access) and `Member` (read and borrow access)[cite: 27].
-*   **Database Transactions & Soft Delete:** Safe borrowing/returning mechanisms using GORM's `TX` functions to ensure stock data consistency[cite: 27]. Integrated **Soft Delete** for safe record auditing without permanent data loss.
-*   **Dynamic Queries & Reactive UI:** Implemented mathematical pagination and `ILIKE` search filtering on the backend[cite: 27], consumed by a real-time reactive Vue dashboard.
-*   **Personalized Dashboard:** Dedicated borrowing history tracker (`/borrowings/me`) for authenticated users.
+*   **Decoupled Architecture:** Clean separation of concerns between the headless Go backend and the Vite-powered Vue 3 frontend.
+*   **Concurrency & Data Integrity:** Implemented **Pessimistic Locking** (`FOR UPDATE`) during book borrowing to prevent race conditions, and **Database Transactions** (`TX`) to guarantee absolute stock accuracy.
+*   **Resource Optimization:** Configured **Connection Pooling** (Max Open/Idle connections) to handle high traffic and prevent memory leaks.
+*   **Graceful Shutdown:** Server safely completes ongoing database transactions before shutting down upon receiving termination signals.
+*   **Audit Trails & Soft Delete:** Integrated GORM's Soft Delete (`DeletedAt`) for safe record auditing without permanent data loss.
+*   **Relational Mapping:** Automated Foreign Key relations fetching synchronized transaction histories via GORM Preloading.
+*   **Secure Authentication:** User registration and login utilizing **Bcrypt** for password hashing and **JWT** for stateless authentication.
+*   **Role-Based Access Control (RBAC):** Distinct permission levels separating `Admin` (full CRUD access) and `Member` (read and borrow access).
 
 ## 🛠️ Tech Stack
 
 **Backend:**
-*   Go / Gin-Gonic[cite: 27]
-*   GORM & PostgreSQL[cite: 27]
-*   Golang-JWT (v4) & X/Crypto (Bcrypt)[cite: 27]
+*   **Language:** Go (Golang)
+*   **Framework:** Gin-Gonic (w/ CORS Middleware)
+*   **ORM & DB:** GORM, PostgreSQL (Relational constraints & Locking)
+*   **Security:** Golang-JWT (v4), X/Crypto (Bcrypt)
 
 **Frontend:**
-*   Vue 3 (Composition API)
-*   Vite
-*   Axios
+*   **Framework:** Vue 3 (Composition API)
+*   **Build Tool:** Vite
+*   **HTTP Client:** Axios (w/ JWT Interceptors)
 
-## ⚙️ Prerequisites
-
-*   Go (1.16+) and Node.js installed on your local machine.
-*   PostgreSQL server running locally or remotely.
-
-## 📦 Installation & Setup
+## ⚙️ Installation & Local Setup
 
 Clone the repository to get started:
 ```bash
-git clone [https://github.com/firdhausranggaa/proyek-inventory.git](https://github.com/firdhausranggaa/proyek-inventory.git)
-cd proyek-inventory
+git clone [https://github.com/firdhausranggaa/proyek-inventory-simb.git](https://github.com/firdhausranggaa/proyek-inventory-simb.git)
+cd proyek-inventory-simb
 
 ```
 
 ### 1. Backend Setup (Go)
 
-Navigate to the backend directory and configure the environment:
+Navigate to the backend directory:
 
 ```bash
 cd backend
@@ -65,11 +63,11 @@ go run main.go
 
 ```
 
-*Note: Upon the first run, the API will automatically migrate tables and seed the initial admin credentials and book catalogs.*
+*Note: Upon the first run, the API will automatically migrate tables, establish Foreign Keys, and seed the initial admin credentials and book catalogs.*
 
-### 2. Frontend Setup (Vue 3)
+### 2. Frontend Setup (Vue)
 
-Open a new terminal window, navigate to the frontend directory:
+Open a new terminal window and navigate to the frontend directory:
 
 ```bash
 cd frontend
@@ -101,35 +99,23 @@ All protected routes require an `Authorization` header with the format: `Bearer 
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `POST` | `/api/register` | Register a new member account
-
- |
-| `POST` | `/api/login` | Authenticate and receive a JWT token
-
- |
+| `POST` | `/api/register` | Register a new member account |
+| `POST` | `/api/login` | Authenticate and receive a JWT token |
 
 ### Book Management (Protected)
 
 | Method | Endpoint | Access Role | Description |
 | --- | --- | --- | --- |
-| `GET` | `/api/books` | Admin / Member | List all books. Supports `?search=`<br> |
-| `GET` | `/api/books/:id` | Admin / Member | Get details of a specific book
+| `GET` | `/api/books` | Admin / Member | List all books. Supports `?search=`, `?page=`, `?limit=` |
+| `GET` | `/api/books/:id` | Admin / Member | Get details of a specific book |
+| `POST` | `/api/books` | **Admin Only** | Add a new book to the inventory |
+| `PUT` | `/api/books/:id` | **Admin Only** | Update an existing book's details |
+| `DELETE` | `/api/books/:id` | **Admin Only** | Remove a book (Utilizes Audit/Soft Delete) |
 
- |
-| `POST` | `/api/books` | **Admin Only** | Add a new book to the inventory
-
- |
-| `PUT` | `/api/books/:id` | **Admin Only** | Update an existing book's details
-
- |
-| `DELETE` | `/api/books/:id` | **Admin Only** | Remove a book (Utilizes Soft Delete) |
-
-### Borrowing System (Protected)
+### Borrowing System (Protected & Transactional)
 
 | Method | Endpoint | Access Role | Description |
 | --- | --- | --- | --- |
-| `GET` | `/api/borrowings/me` | Admin / Member | Retrieve current user's borrowing history |
-| `POST` | `/api/borrow` | Admin / Member | Borrow a book (requires `book_id` in JSON)
-
- |
+| `GET` | `/api/borrowings/me` | Admin / Member | Retrieve current user's active/past borrowing history |
+| `POST` | `/api/borrow` | Admin / Member | Borrow a book (Applies Pessimistic Locking) |
 | `POST` | `/api/return/:id` | Admin / Member | Return a borrowed book by Transaction ID |
